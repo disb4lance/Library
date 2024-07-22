@@ -24,6 +24,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -40,19 +42,19 @@
                      Background="#34495E" Foreground="White" BorderBrush="Transparent" Grid.Row="3"/>
 
             <!-- Поле ввода пароля -->
-            <TextBlock Text="Пароль" Foreground="White" Margin="0,0,0,15" Grid.Row="4"/>
-            <PasswordBox x:Name="PasswordBox" Height="30" Margin="0,0,0,76" 
+            <TextBlock Text="Пароль" Foreground="White" Margin="0,10,0,5" Grid.Row="4"/>
+            <PasswordBox x:Name="PasswordBox" Height="30" Margin="0,0,0,10" 
                          Background="#34495E" Foreground="White" BorderBrush="Transparent" Grid.Row="5"/>
 
             <!-- Поле подтверждения пароля -->
-            <TextBlock Text="Подтвердите пароль" Foreground="White" Margin="0,30,0,-15" Grid.Row="5"/>
-            <PasswordBox x:Name="ConfirmPasswordBox" Height="30" Margin="0,53,0,23" 
-                         Background="#34495E" Foreground="White" BorderBrush="Transparent" Grid.Row="5"/>
+            <TextBlock Text="Подтвердите пароль" Foreground="White" Margin="0,10,0,5" Grid.Row="6"/>
+            <PasswordBox x:Name="ConfirmPasswordBox" Height="30" Margin="0,0,0,10" 
+                         Background="#34495E" Foreground="White" BorderBrush="Transparent" Grid.Row="7"/>
 
             <!-- Кнопка регистрации -->
             <Button Content="Зарегистрироваться" Height="40" Background="#E74C3C" Foreground="White"
-                    BorderBrush="Transparent" FontSize="16" Margin="79,89,0,-23" 
-                    HorizontalAlignment="Left" Padding="10,5" Grid.Row="5" Click="RegisterButton_Click"/>
+                    BorderBrush="Transparent" FontSize="16" Margin="0,20,0,0" 
+                    HorizontalAlignment="Center" Padding="10,5" Grid.Row="8" Click="RegisterButton_Click"/>
         </Grid>
     </Grid>
 </Window>
