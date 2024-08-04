@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Client.RegistrationWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Регистрация" Height="450" Width="400"
+        Title="Регистрация" Height="450" Width="400 "
         Background="#2C3E50" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
 
