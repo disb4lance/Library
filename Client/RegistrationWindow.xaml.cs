@@ -63,7 +63,13 @@ namespace Client
 
         }
 
-
+        private void LogInButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Открываем окно входа
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.Show();
+            this.Close(); // Закрываем текущее окно регистрации, если это нужно
+        }
         private string HashPassword(string password)
         {
             // Используем SHA256 вместо MD5 для большей безопасности
