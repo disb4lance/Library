@@ -54,12 +54,12 @@
 
             <!-- Кнопка регистрации -->
             <Button Content="Зарегистрироваться" Height="40" Background="#E74C3C" Foreground="White"
-                    BorderBrush="Transparent" FontSize="16" Margin="170,45,0,-25" 
+                    BorderBrush="Transparent" FontSize="16" Margin="170,17,0,3" 
                     HorizontalAlignment="Left" Padding="10,5" Grid.Row="7" Click="RegisterButton_Click"/>
             <!-- Кнопка входа -->
             <Button
                 Content="Вход" Height="40" Background="#E74C3C" Foreground="White"
-                BorderBrush="Transparent" FontSize="16" Margin="0,45,0,-25" 
+                BorderBrush="Transparent" FontSize="16" Margin="10,17,0,3" 
                 HorizontalAlignment="Left" Padding="10,5" Grid.Row="7" Click="LogInButton_Click" Width="146"/>
         </Grid>
     </Grid>

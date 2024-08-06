@@ -50,6 +50,19 @@ namespace Server.Controllers
         {
             return _context.Users.Any(u => u.name.Equals(name));
         }
+
+        [HttpGet("LogIn")]
+        public IActionResult LogIn(string name, string password) {
+            var user = _context.Users.FirstOrDefault(x => x.name == name && x.password == password);
+            if (user != null)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Invalid username or password.");
+            }
+        }
     }
    
 }
