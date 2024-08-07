@@ -1,60 +1,99 @@
 ﻿using Classes.DataBase;
 using Classes.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using MimeKit;
+using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Authorization;
+using Classes.EmailService;
 
 namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
-
-
         private readonly datacontext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AccountController(datacontext context)
+        public AccountController(datacontext context, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(User user)
+        public async Task<IActionResult> Register(User model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            User user = new User { CustomEmail = model.CustomEmail, Customname = model.Customname };
+            var result = await _userManager.CreateAsync(user, model.Custompassword);
 
-            if (EmailExists(user.email))
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("Email", "Email is already taken.");
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.Action(
+                    "ConfirmEmail",
+                    "Account",
+                    new { userId = user.IsnNode, code = code },
+                    protocol: HttpContext.Request.Scheme);
+                EmailService emailService = new EmailService();
+                await emailService.SendEmailAsync(model.CustomEmail, "Confirm your account",
+                    $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
+
+                return Ok("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме");
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
                 return BadRequest(ModelState);
             }
-            if (NameExists(user.name))
+        }
+
+        [HttpGet("ConfirmEmail")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
             {
-                ModelState.AddModelError("name", "name is already taken.");
-                return BadRequest(ModelState);
+                return BadRequest("User ID and code are required.");
             }
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return Ok("Регистрация успешна!");
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            if (result.Succeeded)
+                return Ok("Email confirmed successfully!");
+            else
+                return BadRequest(result.Errors);
         }
 
-        private bool EmailExists(string email)
+        [HttpPost("LogIn")]
+        public async Task<IActionResult> LogIn(string name, string password)
         {
-            return _context.Users.Any(u => u.email.Equals(email));
-        }
-        private bool NameExists(string name)
-        {
-            return _context.Users.Any(u => u.name.Equals(name));
-        }
-
-        [HttpGet("LogIn")]
-        public IActionResult LogIn(string name, string password) {
-            var user = _context.Users.FirstOrDefault(x => x.name == name && x.password == password);
+            var user = await _userManager.FindByNameAsync(name);
             if (user != null)
+            {
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    return BadRequest("Вы не подтвердили свой email.");
+                }
+            }
+
+            if (user.Custompassword == password)
             {
                 return Ok();
             }
@@ -64,5 +103,6 @@ namespace Server.Controllers
             }
         }
     }
-   
+
+
 }

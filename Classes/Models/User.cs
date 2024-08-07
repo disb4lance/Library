@@ -1,19 +1,19 @@
-﻿using Classes.Intarfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace Classes.Models
 {
-    public class User : IUser
+    public class User : IdentityUser
     {
 
-        public int Id { get; set; }
-        public string name { get; set; }
-        public string email { get; set; }
-        public string password { get; set; }
+        [JsonIgnore]
+        public int IsnNode { get; set; }
+        public string Customname { get; set; }
+       
+        public string CustomEmail { get; set; }
+        public string Custompassword { get; set; }
 
 
     }

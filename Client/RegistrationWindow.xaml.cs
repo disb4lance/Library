@@ -3,15 +3,10 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Security.Cryptography;
-
 
 namespace Client
 {
-    /// <summary>
-    /// Логика взаимодействия для RegistrationWindow.xaml
-    /// </summary>
     public partial class RegistrationWindow : Window
     {
         public RegistrationWindow()
@@ -22,28 +17,10 @@ namespace Client
         private async void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             string username = UsernameTextBox.Text;
-            string email = EmailTextBox.Text;
+            string mail = EmailTextBox.Text;
             string password = PasswordBox.Password;
             string confirmPassword = ConfirmPasswordBox.Password;
 
-            // Проверка введенных данных
-            if (username.Length > 10)
-            {
-                MessageBox.Show("Введите имя пользователя.", "Имя пользователя до 10 символов", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (!IsValidEmail(email))
-            {
-                MessageBox.Show("Введите действительный адрес электронной почты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (password.Length > 20)
-            {
-                MessageBox.Show("Введите пароль.", "Ошибка до 20 символов", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
 
             if (password != confirmPassword)
             {
@@ -53,42 +30,13 @@ namespace Client
 
             User user = new User()
             {
-                name = UsernameTextBox.Text,
-                email = EmailTextBox.Text,
-                password = HashPassword(password)
+                Customname = UsernameTextBox.Text,
+                CustomEmail = mail,
+                Custompassword = password
             };
 
             // Отправка данных пользователя на сервер
             await RegisterUserAsync(user);
-
-        }
-
-        private void LogInButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Открываем окно входа
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.Show();
-            this.Close(); // Закрываем текущее окно регистрации, если это нужно
-        }
-        private string HashPassword(string password)
-        {
-            // Используем SHA256 вместо MD5 для большей безопасности
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
-            {
-                // Преобразуем строку в байты с использованием UTF8
-                byte[] bytes = Encoding.UTF8.GetBytes(password);
-                // Получаем хэш в виде байтового массива
-                byte[] hash = sha256.ComputeHash(bytes);
-
-                // Строим строку из хэша
-                StringBuilder sb = new StringBuilder();
-                foreach (byte b in hash)
-                {
-                    sb.Append(b.ToString("X2"));
-                }
-
-                return sb.ToString();
-            }
         }
 
         private async Task RegisterUserAsync(User user)
@@ -105,8 +53,9 @@ namespace Client
                     StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     // Отправка POST-запроса
-                    
-                    HttpResponseMessage response = await client.PostAsync("Account/Register", content);
+
+                    HttpResponseMessage response = await client.PostAsync("Account/register", content);
+
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -129,7 +78,27 @@ namespace Client
                 MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        // Вспомогательный метод для проверки адреса электронной почты
+        private string HashPassword(string password)
+        {
+            // Используем SHA256 вместо MD5 для большей безопасности
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                // Преобразуем строку в байты с использованием UTF8
+                byte[] bytes = Encoding.UTF8.GetBytes(password);
+                // Получаем хэш в виде байтового массива
+                byte[] hash = sha256.ComputeHash(bytes);
+
+                // Строим строку из хэша
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hash)
+                {
+                    sb.Append(b.ToString("X2"));
+                }
+
+                return sb.ToString();
+            }
+        }
+
         private bool IsValidEmail(string email)
         {
             try
@@ -141,6 +110,13 @@ namespace Client
             {
                 return false;
             }
+        }
+
+        private void LogInButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.Show();
+            this.Close();
         }
     }
 }

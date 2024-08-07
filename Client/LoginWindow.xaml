@@ -40,6 +40,10 @@
             <Button Content="Войти" Height="40" Background="#E74C3C" Foreground="White"
                     BorderBrush="Transparent" FontSize="16" Margin="0,75,0,-55"
                     HorizontalAlignment="Left" Padding="10,5" Grid.Row="3" Click="LoginButton_Click"/>
+            <!-- Кнопка Забыл пароль -->
+            <Button Content="Забыл пароль" Height="40" Background="#E74C3C" Foreground="White"
+                    BorderBrush="Transparent" FontSize="16" Margin="215,75,0,-55"
+                    HorizontalAlignment="Left" Padding="10,5" Grid.Row="3" Click="ForgotPassword_Click"/>
         </Grid>
     </Grid>
 </Window>

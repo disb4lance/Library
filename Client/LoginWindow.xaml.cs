@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace Client
 {
-    /// <summary>
-    /// Логика взаимодействия для LoginWindow.xaml
-    /// </summary>
     public partial class LoginWindow : Window
     {
         public LoginWindow()
@@ -30,6 +27,12 @@ namespace Client
             string name = LoginUsernameTextBox.Text;
             string password = HashPassword(LoginPasswordBox.Password);
             LogIn(name, password);
+
+        }
+
+        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+        {
+            
 
         }
         private async Task LogIn(string name, string password)
@@ -69,7 +72,7 @@ namespace Client
 
         private string HashPassword(string password)
         {
-            // Используем SHA256 вместо MD5 для большей безопасности
+            // Используем SHA256
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
                 // Преобразуем строку в байты с использованием UTF8
