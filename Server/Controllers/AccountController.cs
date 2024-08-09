@@ -27,15 +27,15 @@ namespace Server.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(User model)
+        public async Task<IActionResult> Register([FromBody] User model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            User user = new User { CustomEmail = model.CustomEmail, Customname = model.Customname };
-            var result = await _userManager.CreateAsync(user, model.Custompassword);
+            User user = new User { Email = model.Email, UserName = model.UserName };
+            var result = await _userManager.CreateAsync(user, model.PasswordHash);
 
             if (result.Succeeded)
             {
@@ -46,7 +46,7 @@ namespace Server.Controllers
                     new { userId = user.IsnNode, code = code },
                     protocol: HttpContext.Request.Scheme);
                 EmailService emailService = new EmailService();
-                await emailService.SendEmailAsync(model.CustomEmail, "Confirm your account",
+                await emailService.SendEmailAsync(model.Email, "Confirm your account",
                     $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
 
                 return Ok("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме");
@@ -55,10 +55,12 @@ namespace Server.Controllers
             {
                 foreach (var error in result.Errors)
                 {
+                    Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
                 return BadRequest(ModelState);
             }
+           
         }
 
         [HttpGet("ConfirmEmail")]
@@ -93,7 +95,7 @@ namespace Server.Controllers
                 }
             }
 
-            if (user.Custompassword == password)
+            if (user.PasswordHash == password)
             {
                 return Ok();
             }

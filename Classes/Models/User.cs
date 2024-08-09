@@ -10,11 +10,7 @@ namespace Classes.Models
 
         [JsonIgnore]
         public int IsnNode { get; set; }
-        public string Customname { get; set; }
        
-        public string CustomEmail { get; set; }
-        public string Custompassword { get; set; }
-
 
     }
 }

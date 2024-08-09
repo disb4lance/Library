@@ -30,9 +30,9 @@ namespace Client
 
             User user = new User()
             {
-                Customname = UsernameTextBox.Text,
-                CustomEmail = mail,
-                Custompassword = password
+                UserName = UsernameTextBox.Text,
+                Email = mail,
+                PasswordHash = password
             };
 
             // Отправка данных пользователя на сервер
@@ -55,6 +55,7 @@ namespace Client
                     // Отправка POST-запроса
 
                     HttpResponseMessage response = await client.PostAsync("Account/register", content);
+                    Console.WriteLine(response.Content);
 
 
                     if (response.IsSuccessStatusCode)
