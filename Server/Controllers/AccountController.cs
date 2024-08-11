@@ -8,6 +8,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Classes.EmailService;
+using System.Net;
 
 namespace Server.Controllers
 {
@@ -39,12 +40,14 @@ namespace Server.Controllers
 
             if (result.Succeeded)
             {
+                Console.WriteLine(user.Id.ToString());
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var callbackUrl = Url.Action(
                     "ConfirmEmail",
                     "Account",
-                    new { userId = user.IsnNode, code = code },
+                    new { userId = user.Id.ToString(), code = WebUtility.UrlEncode(code) },
                     protocol: HttpContext.Request.Scheme);
+                callbackUrl = callbackUrl.Replace(';', '&');
                 EmailService emailService = new EmailService();
                 await emailService.SendEmailAsync(model.Email, "Confirm your account",
                     $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
@@ -67,7 +70,7 @@ namespace Server.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
-            if (userId == null || code == null)
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(code))
             {
                 return BadRequest("User ID and code are required.");
             }
@@ -76,6 +79,7 @@ namespace Server.Controllers
             {
                 return NotFound("User not found.");
             }
+            code = WebUtility.UrlDecode(code); // Декодирование токена
             var result = await _userManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
                 return Ok("Email confirmed successfully!");
@@ -84,20 +88,24 @@ namespace Server.Controllers
         }
 
         [HttpPost("LogIn")]
-        public async Task<IActionResult> LogIn(string name, string password)
+        public async Task<IActionResult> LogIn([FromBody] User model)
         {
-            var user = await _userManager.FindByNameAsync(name);
-            if (user != null)
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
             {
-                if (!await _userManager.IsEmailConfirmedAsync(user))
-                {
-                    return BadRequest("Вы не подтвердили свой email.");
-                }
+                return BadRequest("Invalid username or password.");
             }
 
-            if (user.PasswordHash == password)
+            if (!await _userManager.IsEmailConfirmedAsync(user))
             {
-                return Ok();
+                return BadRequest("Вы не подтвердили свой email.");
+            }
+
+            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.PasswordHash);
+            if (passwordVerificationResult == PasswordVerificationResult.Success)
+            {
+                // Логика успешного входа, например, создание токена
+                return Ok("Вход успешен!");
             }
             else
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Classes.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -24,9 +25,12 @@ namespace Client
         }
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = LoginUsernameTextBox.Text;
-            string password = HashPassword(LoginPasswordBox.Password);
-            LogIn(name, password);
+            User user = new User
+            {
+                UserName = LoginUsernameTextBox.Text,
+                PasswordHash = LoginPasswordBox.Password
+            };
+            LogIn(user);
 
         }
 
@@ -35,7 +39,7 @@ namespace Client
             
 
         }
-        private async Task LogIn(string name, string password)
+        private async Task LogIn(User user)
         {
             try
             {
@@ -44,11 +48,12 @@ namespace Client
                     // Установите базовый адрес вашего API
                     client.BaseAddress = new Uri("http://localhost:5062/api/");
 
-                    // Кодирование параметров запроса для безопасной передачи в URL
-                    string query = $"Account/LogIn?name={Uri.EscapeDataString(name)}&password={Uri.EscapeDataString(password)}";
 
-                    // Отправка GET-запроса
-                    HttpResponseMessage response = await client.GetAsync(query);
+                    string json = JsonSerializer.Serialize(user);
+                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // Отправка POST-запроса
+                    HttpResponseMessage response = await client.PostAsync("Account/LogIn", content);
 
                     if (response.IsSuccessStatusCode)
                     {

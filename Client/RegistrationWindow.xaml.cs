@@ -55,7 +55,6 @@ namespace Client
                     // Отправка POST-запроса
 
                     HttpResponseMessage response = await client.PostAsync("Account/register", content);
-                    Console.WriteLine(response.Content);
 
 
                     if (response.IsSuccessStatusCode)
