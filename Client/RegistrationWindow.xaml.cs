@@ -21,6 +21,17 @@ namespace Client
             string password = PasswordBox.Password;
             string confirmPassword = ConfirmPasswordBox.Password;
 
+            IUserFactory userFactory;
+
+            if (username.ToLower().Contains("admin"))
+            {
+                userFactory = new AdminUserFactory();
+            }
+            else
+            {
+                userFactory = new RegularUserFactory();
+            }
+
 
             if (password != confirmPassword)
             {
@@ -28,15 +39,11 @@ namespace Client
                 return;
             }
 
-            User user = new User()
-            {
-                UserName = UsernameTextBox.Text,
-                Email = mail,
-                PasswordHash = password
-            };
-
+            // Создаем UserService и создаем пользователя
+            var userService = new UserService(userFactory);
+            User newUser = userService.RegisterUser(username, password, mail);
             // Отправка данных пользователя на сервер
-            await RegisterUserAsync(user);
+            await RegisterUserAsync(newUser);
         }
 
         private async Task RegisterUserAsync(User user)

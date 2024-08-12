@@ -15,5 +15,15 @@ namespace Classes.DataBase
         }
 
         public virtual DbSet<User> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Настройка TPH (Table-per-Hierarchy) — все пользователи будут храниться в одной таблице
+            modelBuilder.Entity<User>()
+                .HasDiscriminator<string>("UserType")
+                .HasValue<AdminUser>("Admin")
+                .HasValue<RegularUser>("Regular");
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

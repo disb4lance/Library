@@ -35,24 +35,11 @@ namespace Server.Controllers
                 return BadRequest(ModelState);
             }
 
-            User user = new User { Email = model.Email, UserName = model.UserName };
+            User user = new User { Email = model.Email, UserName = model.UserName, Role = model.Role };
             var result = await _userManager.CreateAsync(user, model.PasswordHash);
-
             if (result.Succeeded)
             {
-                Console.WriteLine(user.Id.ToString());
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var callbackUrl = Url.Action(
-                    "ConfirmEmail",
-                    "Account",
-                    new { userId = user.Id.ToString(), code = WebUtility.UrlEncode(code) },
-                    protocol: HttpContext.Request.Scheme);
-                callbackUrl = callbackUrl.Replace(';', '&');
-                EmailService emailService = new EmailService();
-                await emailService.SendEmailAsync(model.Email, "Confirm your account",
-                    $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
-
-                return Ok("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме");
+                return Ok();
             }
             else
             {
@@ -63,7 +50,37 @@ namespace Server.Controllers
                 }
                 return BadRequest(ModelState);
             }
-           
+                
+            
+            //Двухфакторка
+
+
+                //if (result.Succeeded)
+                //{
+                //    Console.WriteLine(user.Id.ToString());
+                //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                //    var callbackUrl = Url.Action(
+                //        "ConfirmEmail",
+                //        "Account",
+                //        new { userId = user.Id.ToString(), code = WebUtility.UrlEncode(code) },
+                //        protocol: HttpContext.Request.Scheme);
+                //    callbackUrl = callbackUrl.Replace(';', '&');
+                //    EmailService emailService = new EmailService();
+                //    await emailService.SendEmailAsync(model.Email, "Confirm your account",
+                //        $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
+
+            //    return Ok("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме");
+            //}
+            //else
+            //{
+            //    foreach (var error in result.Errors)
+            //    {
+            //        Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+            //        ModelState.AddModelError(string.Empty, error.Description);
+            //    }
+            //    return BadRequest(ModelState);
+            //}
+
         }
 
         [HttpGet("ConfirmEmail")]
