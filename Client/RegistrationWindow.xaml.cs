@@ -46,7 +46,7 @@ namespace Client
             await RegisterUserAsync(newUser);
         }
 
-        private async Task RegisterUserAsync(User user)
+        public async Task RegisterUserAsync(User user)
         {
             try
             {
@@ -83,39 +83,6 @@ namespace Client
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        private string HashPassword(string password)
-        {
-            // Используем SHA256 вместо MD5 для большей безопасности
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
-            {
-                // Преобразуем строку в байты с использованием UTF8
-                byte[] bytes = Encoding.UTF8.GetBytes(password);
-                // Получаем хэш в виде байтового массива
-                byte[] hash = sha256.ComputeHash(bytes);
-
-                // Строим строку из хэша
-                StringBuilder sb = new StringBuilder();
-                foreach (byte b in hash)
-                {
-                    sb.Append(b.ToString("X2"));
-                }
-
-                return sb.ToString();
-            }
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
             }
         }
 
