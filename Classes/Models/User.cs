@@ -9,6 +9,8 @@ namespace Classes.Models
     public class User : IdentityUser // базовая модель
     {
         public string Role { get; set; }
+        public ICollection<Review> Reviews { get; set; } // Связь один ко многим с отзывами
+        public ICollection<Loan> Loans { get; set; } // Связь один ко многим с арендой
 
 
     }
@@ -37,13 +39,13 @@ namespace Classes.Models
     }
 
     // Создание конкретных фабрик для каждого типа пользователя
-    public class AdminUserFactory : IUserFactory
-    {
-        public User CreateUser(string username, string password, string email)
+        public class AdminUserFactory : IUserFactory
         {
-            return new AdminUser { UserName = username, PasswordHash = password, Email = email };
+            public User CreateUser(string username, string password, string email)
+            {
+                return new AdminUser { UserName = username, PasswordHash = password, Email = email };
+            }
         }
-    }
 
         public class RegularUserFactory : IUserFactory
         {
