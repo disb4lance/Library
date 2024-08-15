@@ -1,4 +1,5 @@
-﻿using Classes.Models;
+﻿using Classes.LoginModel;
+using Classes.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,12 +26,13 @@ namespace Client
         }
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            User user = new User
+            
+            LoginModel loginModel = new LoginModel
             {
                 UserName = LoginUsernameTextBox.Text,
-                PasswordHash = LoginPasswordBox.Password
+                Password = LoginPasswordBox.Password
             };
-            LogIn(user);
+            LogIn(loginModel);
 
         }
 
@@ -39,28 +41,45 @@ namespace Client
             
 
         }
-        private async Task LogIn(User user)
+        private async Task LogIn(LoginModel user)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    // Установите базовый адрес вашего API
                     client.BaseAddress = new Uri("http://localhost:5062/api/");
-
 
                     string json = JsonSerializer.Serialize(user);
                     StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    // Отправка POST-запроса
                     HttpResponseMessage response = await client.PostAsync("Account/LogIn", content);
 
                     if (response.IsSuccessStatusCode)
                     {
-                        MessageBox.Show("Вход успешен!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-                        // Очистка полей после успешного входа
-                        LoginUsernameTextBox.Clear();
-                        LoginPasswordBox.Clear();
+                        // Чтение ответа как строки
+                        string responseBody = await response.Content.ReadAsStringAsync();
+
+                        // Десериализация ответа
+                        var result = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
+
+                        if (result != null && result.TryGetValue("token", out var tokenString))
+                        {
+                            // Используйте токен здесь, например сохраните его или используйте для аутентификации
+                            MessageBox.Show("Вход успешен!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            // Очистка полей после успешного входа
+                            LoginUsernameTextBox.Clear();
+                            LoginPasswordBox.Clear();
+
+                            // Пример передачи токена в следующую форму
+                            BookForm BookFormWindow = new BookForm(tokenString);
+                            BookFormWindow.Show();
+                            this.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Токен не найден в ответе", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                     else
                     {
@@ -74,6 +93,7 @@ namespace Client
                 MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private string HashPassword(string password)
         {

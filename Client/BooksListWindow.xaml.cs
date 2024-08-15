@@ -20,7 +20,7 @@ namespace Client
         {
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri("http://localhost:5000/api/");
+                client.BaseAddress = new Uri("http://localhost:5062/api/");
 
                 HttpResponseMessage response = await client.GetAsync("Books");
 
@@ -42,7 +42,7 @@ namespace Client
             string query = SearchTextBox.Text;
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri("http://localhost:5000/api/");
+                client.BaseAddress = new Uri("http://localhost:5062/api/");
 
                 HttpResponseMessage response = await client.GetAsync($"Books/search?title={query}&author={query}&genre={query}");
 
@@ -61,8 +61,8 @@ namespace Client
 
         private void AddBookButton_Click(object sender, RoutedEventArgs e)
         {
-            var bookForm = new BookForm();
-            bookForm.ShowDialog();
+            //var bookForm = new BookForm();
+            //bookForm.ShowDialog();
             LoadBooksAsync();
         }
 

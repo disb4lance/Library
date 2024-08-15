@@ -9,8 +9,8 @@ namespace Classes.Models
     public class User : IdentityUser // базовая модель
     {
         public string Role { get; set; }
-        public ICollection<Review> Reviews { get; set; } // Связь один ко многим с отзывами
-        public ICollection<Loan> Loans { get; set; } // Связь один ко многим с арендой
+        public ICollection<Review> Reviews { get; set; } = new List<Review>(); // 
+        public ICollection<Loan> Loans { get; set; } = new List<Loan>(); // 
 
 
     }

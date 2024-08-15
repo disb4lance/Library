@@ -45,6 +45,8 @@ namespace Classes.DataBase
                 .HasOne(l => l.User)
                 .WithMany(u => u.Loans)
                 .HasForeignKey(l => l.UserId);
+
+
         }
     }
 }

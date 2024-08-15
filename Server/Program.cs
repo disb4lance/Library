@@ -1,8 +1,11 @@
 using Classes.DataBase;
 using Classes.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +34,35 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 })
         .AddEntityFrameworkStores<datacontext>()
         .AddDefaultTokenProviders();
-var app = builder.Build();
+
+// Конфигурация JWT аутентификации
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var issuer = builder.Configuration["Jwt:Issuer"];
+    var audience = builder.Configuration["Jwt:Audience"];
+    var key = builder.Configuration["Jwt:Key"];
+
+    if (issuer == null || audience == null || key == null)
+    {
+        throw new ArgumentNullException("JWT configuration values are missing.");
+    }
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
+}); var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

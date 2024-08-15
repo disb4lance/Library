@@ -9,22 +9,31 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Classes.EmailService;
 using System.Net;
+using Classes.LoginModel;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class AccountController : ControllerBase
     {
         private readonly datacontext _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(datacontext context, UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(datacontext context, UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _configuration = configuration;
+
         }
 
         [HttpPost("register")]
@@ -105,7 +114,7 @@ namespace Server.Controllers
         }
 
         [HttpPost("LogIn")]
-        public async Task<IActionResult> LogIn([FromBody] User model)
+        public async Task<IActionResult> LogIn([FromBody] LoginModel model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
@@ -113,16 +122,35 @@ namespace Server.Controllers
                 return BadRequest("Invalid username or password.");
             }
 
-            if (!await _userManager.IsEmailConfirmedAsync(user))
-            {
-                return BadRequest("Вы не подтвердили свой email.");
-            }
+            //if (!await _userManager.IsEmailConfirmedAsync(user))
+            //{
+            //    return BadRequest("Вы не подтвердили свой email.");
+            //}
 
-            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.PasswordHash);
+            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
             if (passwordVerificationResult == PasswordVerificationResult.Success)
             {
-                // Логика успешного входа, например, создание токена
-                return Ok("Вход успешен!");
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id),
+                        new Claim(ClaimTypes.Role, user.Role) 
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return Ok(new { Token = tokenString });
             }
             else
             {
