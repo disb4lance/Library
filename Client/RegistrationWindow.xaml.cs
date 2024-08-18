@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text;
 using System.Windows;
 using System.Security.Cryptography;
+using Client.Services.Requests;
 
 namespace Client
 {
@@ -48,41 +49,23 @@ namespace Client
 
         public async Task RegisterUserAsync(User user)
         {
-            try
+            var apiClient = new ApiClient();
+
+
+            var response = await apiClient.PostUserAsync("Account/register", user);
+
+            if (response.IsSuccess)
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    // Установите базовый адрес вашего API
-                    client.BaseAddress = new Uri("http://localhost:5062/api/");
-
-                    // Преобразуйте объект пользователя в JSON
-                    string json = JsonSerializer.Serialize(user);
-                    StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    // Отправка POST-запроса
-
-                    HttpResponseMessage response = await client.PostAsync("Account/register", content);
-
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        MessageBox.Show("Регистрация успешна!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-                        // Очистка полей после успешной регистрации
-                        UsernameTextBox.Clear();
-                        EmailTextBox.Clear();
-                        PasswordBox.Clear();
-                        ConfirmPasswordBox.Clear();
-                    }
-                    else
-                    {
-                        string error = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Ошибка регистрации: {error}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                MessageBox.Show(response.Message, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Очистка полей после успешной регистрации
+                UsernameTextBox.Clear();
+                EmailTextBox.Clear();
+                PasswordBox.Clear();
+                ConfirmPasswordBox.Clear();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(response.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

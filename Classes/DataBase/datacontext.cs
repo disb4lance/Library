@@ -1,4 +1,5 @@
 ﻿using Classes.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Classes.DataBase
 {
-    public class datacontext : DbContext
+    public class datacontext : IdentityDbContext
     {
         public datacontext(DbContextOptions options) : base(options)
         {

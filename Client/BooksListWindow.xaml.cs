@@ -71,7 +71,7 @@ namespace Client
             int bookId = (int)((Button)sender).Tag;
             var book = (Book)BooksDataGrid.SelectedItem;
 
-            var bookForm = new BookForm(bookId, book.Title, book.Author, book.ISBN, book.PublishedDate, string.Join(",", book.Genres));
+            var bookForm = new BookForm();
             bookForm.ShowDialog();
             LoadBooksAsync();
         }

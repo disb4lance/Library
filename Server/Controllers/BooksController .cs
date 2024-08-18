@@ -3,6 +3,8 @@ using Classes.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Security.Claims;
 
 namespace Server.Controllers
 {
@@ -63,8 +65,8 @@ namespace Server.Controllers
         }
 
         // POST: api/Books
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [HttpPost("AddBook")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<Book>> AddBook(Book book)
         {
             _context.Books.Add(book);
