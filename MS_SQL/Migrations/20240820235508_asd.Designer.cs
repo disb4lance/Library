@@ -4,6 +4,7 @@ using Classes.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MS_SQL.Migrations
 {
     [DbContext(typeof(datacontext))]
-    partial class datacontextModelSnapshot : ModelSnapshot
+    [Migration("20240820235508_asd")]
+    partial class asd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace MS_SQL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("BookGenre", b =>
-                {
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GenreId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BookId", "GenreId");
-
-                    b.HasIndex("GenreId");
-
-                    b.ToTable("BookGenre");
-                });
 
             modelBuilder.Entity("Classes.Models.Book", b =>
                 {
@@ -73,11 +61,16 @@ namespace MS_SQL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookId");
 
                     b.ToTable("Genres");
                 });
@@ -381,19 +374,11 @@ namespace MS_SQL.Migrations
                     b.HasDiscriminator().HasValue("Regular");
                 });
 
-            modelBuilder.Entity("BookGenre", b =>
+            modelBuilder.Entity("Classes.Models.Genre", b =>
                 {
                     b.HasOne("Classes.Models.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Classes.Models.Genre", null)
-                        .WithMany()
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .WithMany("Genres")
+                        .HasForeignKey("BookId");
                 });
 
             modelBuilder.Entity("Classes.Models.Loan", b =>
@@ -483,6 +468,11 @@ namespace MS_SQL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Classes.Models.Book", b =>
+                {
+                    b.Navigation("Genres");
                 });
 
             modelBuilder.Entity("Classes.Models.User", b =>

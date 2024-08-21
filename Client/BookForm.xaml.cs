@@ -16,20 +16,15 @@ namespace Client
     {
         private readonly bool _isEditMode;
         private readonly int _bookId;
-        private string _token;
 
-        public BookForm(string token)
-        {
-            InitializeComponent();
-            _isEditMode = false;
-            _token = token;
-        }
 
         public BookForm()
         {
             InitializeComponent();
-
+            _isEditMode = false;
         }
+
+
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
@@ -57,7 +52,7 @@ namespace Client
 
         private async void SaveBook(Book book)
         {
-            var apiClient = new ApiClient(_token);
+            var apiClient = new ApiClient();
 
             var response = await apiClient.SaveBookAsync(book);
 

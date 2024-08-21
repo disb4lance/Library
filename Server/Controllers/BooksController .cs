@@ -2,18 +2,22 @@
 using Classes.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Server.Filters;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace Server.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class BooksController : ControllerBase
     {
         private readonly datacontext _context;
-
         public BooksController(datacontext context)
         {
             _context = context;
@@ -42,7 +46,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Book>>> SearchBooks(string title = null, string author = null, string genre = null)
+        public async Task<ActionResult<IEnumerable<Book>>> SearchBooks(string title, string author, string genre)
         {
             var query = _context.Books.Include(b => b.Genres).AsQueryable();
 
@@ -65,16 +69,43 @@ namespace Server.Controllers
         }
 
         // POST: api/Books
+        //[ServiceFilter(typeof(ValidateTokenFilter))]
+        //[Authorize(Policy = "AdminOnly")]
         [HttpPost("AddBook")]
-        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<Book>> AddBook(Book book)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return BadRequest(string.Join("; ", errors));
+            }
+            foreach (var genre in book.Genres)
+            {
+                // Пытаемся найти существующий жанр по имени
+                var existingGenre = await _context.Genres
+                    .FirstOrDefaultAsync(g => g.Name == genre.Name);
+
+                if (existingGenre == null)
+                {
+                    // Добавляем новый жанр, если его нет в базе данных
+                    _context.Genres.Add(genre);
+                }
+                else
+                {
+                    // Связываем существующий жанр с книгой
+                    genre.Id = existingGenre.Id;
+                }
+            }
+
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
             //return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
             return Ok();
         }
+
+        
 
         // PUT: api/Books/5
         [HttpPut("{id}")]

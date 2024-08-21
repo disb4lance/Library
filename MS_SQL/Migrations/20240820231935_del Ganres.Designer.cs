@@ -4,6 +4,7 @@ using Classes.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MS_SQL.Migrations
 {
     [DbContext(typeof(datacontext))]
-    partial class datacontextModelSnapshot : ModelSnapshot
+    [Migration("20240820231935_del Ganres")]
+    partial class delGanres
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,17 +27,17 @@ namespace MS_SQL.Migrations
 
             modelBuilder.Entity("BookGenre", b =>
                 {
-                    b.Property<int>("BookId")
+                    b.Property<int>("BooksId")
                         .HasColumnType("int");
 
-                    b.Property<int>("GenreId")
+                    b.Property<int>("GenresId")
                         .HasColumnType("int");
 
-                    b.HasKey("BookId", "GenreId");
+                    b.HasKey("BooksId", "GenresId");
 
-                    b.HasIndex("GenreId");
+                    b.HasIndex("GenresId");
 
-                    b.ToTable("BookGenre");
+                    b.ToTable("BookGenres", (string)null);
                 });
 
             modelBuilder.Entity("Classes.Models.Book", b =>
@@ -385,14 +388,14 @@ namespace MS_SQL.Migrations
                 {
                     b.HasOne("Classes.Models.Book", null)
                         .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Classes.Models.Genre", null)
                         .WithMany()
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("GenresId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

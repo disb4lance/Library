@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Classes.Models
 {
     public class Genre
     {
         public int Id { get; set; }
+
+        [Required]
         public string Name { get; set; }
-        public ICollection<Book> Books { get; set; } // Связь "многие ко многим"
+
+        // Связь многие ко многим с книгами
+        public ICollection<Book> Books { get; set; } = new List<Book>();
     }
 }

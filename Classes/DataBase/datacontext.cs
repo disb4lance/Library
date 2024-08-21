@@ -29,11 +29,23 @@ namespace Classes.DataBase
                 .HasValue<RegularUser>("Regular");
 
             base.OnModelCreating(modelBuilder);
-            // многие ко многим
-            modelBuilder.Entity<Genre>()
-               .HasMany(g => g.Books)
-               .WithMany(b => b.Genres)
-               .UsingEntity(j => j.ToTable("BookGenres"));
+            // Настройка связи многие ко многим
+            modelBuilder.Entity<Book>()
+                .HasMany(b => b.Genres)
+                .WithMany(g => g.Books)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookGenre",
+                    j => j
+                        .HasOne<Genre>()
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j
+                        .HasOne<Book>()
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                );
 
             // Связь один ко многим между User и Reviews
             modelBuilder.Entity<Review>()

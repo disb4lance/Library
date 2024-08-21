@@ -51,12 +51,11 @@ namespace Client
 
             if (response.IsSuccess)
             {
-                string tokenString = response.Message;
                 MessageBox.Show("Вход успешен!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Пример передачи токена в следующую форму
-                BookForm BookFormWindow = new BookForm(tokenString);
-                BookFormWindow.Show();
+                BooksListWindow booksListWindow = new BooksListWindow();
+                booksListWindow.Show();
                 this.Close();
             }
             else
