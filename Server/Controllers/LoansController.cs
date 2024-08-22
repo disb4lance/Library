@@ -6,10 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Server.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class LoansController : Controller
     {
         private datacontext context;
 
+        public LoansController(datacontext context)
+        {
+            this.context = context;
+        }
 
 
 

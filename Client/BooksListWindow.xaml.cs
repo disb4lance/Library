@@ -68,12 +68,12 @@ namespace Client
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            int bookId = (int)((Button)sender).Tag;
-            var book = (Book)BooksDataGrid.SelectedItem;
+            //int bookId = (int)((Button)sender).Tag;
+            //var book = (Book)BooksDataGrid.SelectedItem;
 
-            var bookForm = new BookForm();
-            bookForm.ShowDialog();
-            LoadBooksAsync();
+            ////var bookForm = new BookForm();
+            //bookForm.ShowDialog();
+            //LoadBooksAsync();
         }
     }
 }

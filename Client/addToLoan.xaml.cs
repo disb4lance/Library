@@ -36,11 +36,14 @@ namespace Client
             using (HttpClient client = new HttpClient())
             {
                 string bookTitle = BookTitleTextBox.Text;
-                // Укажите URL вашего API
-                string url = "http://localhost:5062/api/Books/GetBookByName?name={Uri.EscapeDataString(bookTitle)}";
+                string encodedBookTitle = Uri.EscapeDataString(bookTitle);
 
-                HttpResponseMessage response =  client.GetAsync(url).Result;
+                // Укажите URL вашего API
+                string url = $"http://localhost:5062/api/Books/GetBookByName?name={encodedBookTitle}";
+
+                HttpResponseMessage response = client.GetAsync(url).Result;
                 response.EnsureSuccessStatusCode();
+
 
                 string responseData = await response.Content.ReadAsStringAsync();
                 Book book = JsonConvert.DeserializeObject<Book>(responseData);
@@ -76,7 +79,6 @@ namespace Client
 
         private string GetUserIdFromToken(string token)
         {
-            // Простая реализация для извлечения данных из токена (используйте библиотеку JWT для полноценного решения)
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
             var userId = jsonToken?.Claims.FirstOrDefault(c => c.Type == "id")?.Value;

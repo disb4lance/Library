@@ -55,7 +55,7 @@ namespace Client
                 string token = response.Data.ToString();
                 //SaveBookToLoan(token);
                 // Пример передачи токена в следующую форму
-                addToLoan booksListWindow = new addToLoan(token);
+                BookForm booksListWindow = new BookForm(token);
                 booksListWindow.Show();
                 this.Close();
             }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows;
 using Classes.Models;
+using System.Net.Http.Headers;
 
 
 namespace Client.Services.Requests
@@ -15,9 +16,19 @@ namespace Client.Services.Requests
     public class ApiClient
     {
         private readonly HttpClient _client;
+        private string _token;
+
 
         public ApiClient()
         {
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:5062/api/")
+            };
+        }
+
+        public ApiClient(string token) {
+            _token = token;
             _client = new HttpClient
             {
                 BaseAddress = new Uri("http://localhost:5062/api/")
@@ -93,10 +104,11 @@ namespace Client.Services.Requests
         {
             try
             {
-                
-
                 string json = JsonSerializer.Serialize(book);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // Добавляем токен в заголовок запроса
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
                 // Отправка POST-запроса
                 HttpResponseMessage response = await _client.PostAsync("Books/AddBook", content);
@@ -115,7 +127,6 @@ namespace Client.Services.Requests
             {
                 return ApiResponse.Failure($"Connection error: {ex.Message}");
             }
-
         }
         public async Task<ApiResponse> AddBookToCartAsync(Book book)
         {

@@ -123,39 +123,55 @@ namespace Server.Controllers
         // POST: api/Books
         //[ServiceFilter(typeof(ValidateTokenFilter))]
         //[Authorize(Policy = "AdminOnly")]
-        [HttpPost("AddBook")]
-        public async Task<ActionResult<Book>> AddBook(Book book)
+        [Authorize]
+        [HttpPost("AddAddBook")]
+        public async Task<ActionResult<Book>> AddBook([FromBody]Book book)
         {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
 
-            if (!ModelState.IsValid)
+            if (identity != null)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                return BadRequest(string.Join("; ", errors));
-            }
-            foreach (var genre in book.Genres)
-            {
-                // Пытаемся найти существующий жанр по имени
-                var existingGenre = await _context.Genres
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.Name == genre.Name);
-
-                if (existingGenre == null)
+                // Извлекаем клейм роли
+                var roleClaim = identity.FindFirst("role");
+                if (roleClaim != null && roleClaim.Value == "admin")
                 {
-                    genre.Id = existingGenre.Id;
+
+                    if (!ModelState.IsValid)
+                    {
+                        var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                        return BadRequest(string.Join("; ", errors));
+                    }
+                    foreach (var genre in book.Genres)
+                    {
+                        // Пытаемся найти существующий жанр по имени
+                        var existingGenre = await _context.Genres
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(g => g.Name == genre.Name);
+
+                        if (existingGenre == null)
+                        {
+                            genre.Id = existingGenre.Id;
+                        }
+                    }
+
+                    _context.Books.Add(book);
+                    await _context.SaveChangesAsync();
+
+                    //return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
+                    return Ok();
+                }
+                else
+                {
+                    return Forbid("Access denied. Only admins can add books.");
                 }
             }
-
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-
-            //return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
-            return Ok();
+            return Unauthorized("Invalid token.");
         }
 
-        
 
-        // PUT: api/Books/5
-        [HttpPut("{id}")]
+
+            // PUT: api/Books/5
+            [HttpPut("{id}")]
         //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateBook(int id, Book book)
         {
