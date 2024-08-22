@@ -52,9 +52,10 @@ namespace Client
             if (response.IsSuccess)
             {
                 MessageBox.Show("Вход успешен!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-
+                string token = response.Data.ToString();
+                //SaveBookToLoan(token);
                 // Пример передачи токена в следующую форму
-                BooksListWindow booksListWindow = new BooksListWindow();
+                addToLoan booksListWindow = new addToLoan(token);
                 booksListWindow.Show();
                 this.Close();
             }
@@ -63,5 +64,6 @@ namespace Client
                 MessageBox.Show(response.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
     }
 }

@@ -130,12 +130,35 @@ namespace Server.Controllers
             var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
             if (passwordVerificationResult == PasswordVerificationResult.Success)
             {
-                return Ok();
+                var token = GenerateJwtToken(user);
+                return Ok(new { token });
             }
             else
             {
                 return BadRequest("Invalid username or password.");
             }
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            // Клеймы с id и ролью пользователя
+            var claims = new[]
+            {
+            new Claim("id", user.Id.ToString()),
+            new Claim("role", user.Role)
+        };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 

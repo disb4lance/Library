@@ -11,7 +11,7 @@ namespace Classes.Models
         [Required]
         public string Name { get; set; }
 
-        // Связь многие ко многим с книгами
+
         public ICollection<Book> Books { get; set; } = new List<Book>();
     }
 }

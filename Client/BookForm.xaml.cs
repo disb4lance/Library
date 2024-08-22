@@ -25,6 +25,9 @@ namespace Client
         }
 
 
+        private async void AddBookToLoan() { 
+
+        }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {

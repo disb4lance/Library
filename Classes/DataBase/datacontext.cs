@@ -28,25 +28,11 @@ namespace Classes.DataBase
                 .HasValue<AdminUser>("Admin")
                 .HasValue<RegularUser>("Regular");
 
-            base.OnModelCreating(modelBuilder);
             // Настройка связи многие ко многим
             modelBuilder.Entity<Book>()
                 .HasMany(b => b.Genres)
                 .WithMany(g => g.Books)
-                .UsingEntity<Dictionary<string, object>>(
-                    "BookGenre",
-                    j => j
-                        .HasOne<Genre>()
-                        .WithMany()
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Restrict),
-                    j => j
-                        .HasOne<Book>()
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                );
-
+                .UsingEntity(j => j.ToTable("BookGenres"));
             // Связь один ко многим между User и Reviews
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.User)
@@ -58,6 +44,9 @@ namespace Classes.DataBase
                 .HasOne(l => l.User)
                 .WithMany(u => u.Loans)
                 .HasForeignKey(l => l.UserId);
+
+            base.OnModelCreating(modelBuilder);
+
 
 
         }

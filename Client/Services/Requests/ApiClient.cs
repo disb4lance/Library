@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows;
 using Classes.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Http.HttpResults;
+
 
 namespace Client.Services.Requests
 {
@@ -62,8 +60,22 @@ namespace Client.Services.Requests
 
                 if (response.IsSuccessStatusCode)
                 {
+                    var result = await response.Content.ReadAsStringAsync();
 
-                        return ApiResponse.Success();
+                    // Десериализация результата для получения токена (предполагается, что ответ содержит JSON с ключом "token")
+                    var jsonObject = JsonSerializer.Deserialize<Dictionary<string, string>>(result);
+
+                    if (jsonObject != null && jsonObject.ContainsKey("token"))
+                    {
+                        string token = jsonObject["token"];
+
+                        // Возвращаем успешный ответ с токеном
+                        return ApiResponse.Success(token);
+                    }
+                    else
+                    {
+                        return ApiResponse.Failure("Token not found in the response.");
+                    }
                 }
                 else
                 {
@@ -104,6 +116,30 @@ namespace Client.Services.Requests
                 return ApiResponse.Failure($"Connection error: {ex.Message}");
             }
 
+        }
+        public async Task<ApiResponse> AddBookToCartAsync(Book book)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(book);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _client.PostAsync("api/cart/add", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return ApiResponse.Success();
+                }
+                else
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    return ApiResponse.Failure($"Server error: {errorResponse}");
+                }
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Failure($"Connection error: {ex.Message}");
+            }
         }
     }
 }

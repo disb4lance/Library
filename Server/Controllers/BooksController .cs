@@ -23,8 +23,8 @@ namespace Server.Controllers
             _context = context;
         }
 
-        // GET: api/Books
-        [HttpGet]
+       //GET: api/Books
+       [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
             return await _context.Books.Include(b => b.Genres).ToListAsync();
@@ -45,28 +45,80 @@ namespace Server.Controllers
             return book;
         }
 
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Book>>> SearchBooks(string title, string author, string genre)
+        [HttpGet("GetBookByName")]
+        public ActionResult<Book> GetBookByName(string name)
         {
-            var query = _context.Books.Include(b => b.Genres).AsQueryable();
+            var book = _context.Books.Include(b => b.Genres)
+                                      .FirstOrDefault(b => b.Title == name);
 
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return book;
+        }
+
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Book>>> SearchBooks(string genre, string author, string title)
+        {
+            var query = _context.Books
+                .Include(b => b.Genres)
+                .AsQueryable();
+
+            IQueryable<Book> a = null, b = null, c = null;
             if (!string.IsNullOrEmpty(title))
             {
-                query = query.Where(b => b.Title.Contains(title));
+                 a = query.Where(b => b.Title.Contains(title));
             }
 
             if (!string.IsNullOrEmpty(author))
             {
-                query = query.Where(b => b.Author.Contains(author));
+                b = query.Where(b => b.Author.Contains(author));
             }
 
             if (!string.IsNullOrEmpty(genre))
             {
-                query = query.Where(b => b.Genres.Any(g => g.Name.Contains(genre)));
+                c = query.Where(b => b.Genres.Any(g => g.Name == genre));
+            }
+            // Проверяем, содержат ли запросы какие-либо результаты
+            bool hasResultsA = a != null && a.Any();
+            bool hasResultsB = b != null && b.Any();
+            bool hasResultsC = c != null && c.Any();
+
+            // Если какой-либо из запросов вернул результаты, используем его
+            if (hasResultsA)
+            {
+                query = a;
+            }
+            else if (hasResultsB)
+            {
+                query = b;
+            }
+            else if (hasResultsC)
+            {
+                query = c;
+            }
+            else
+            {
+                return NotFound();
             }
 
-            return await query.ToListAsync();
+            // Проекция данных
+            var result = await query
+                .Select(b => new
+                {
+                    b.Id,
+                    b.Title,
+                    b.Author,
+                    Genres = b.Genres.Select(g => new { g.Id, g.Name })
+                })
+                .ToListAsync();  // Вызываем ToListAsync после всех операций с LINQ
+
+            return Ok(result);
         }
+
 
         // POST: api/Books
         //[ServiceFilter(typeof(ValidateTokenFilter))]
@@ -84,16 +136,11 @@ namespace Server.Controllers
             {
                 // Пытаемся найти существующий жанр по имени
                 var existingGenre = await _context.Genres
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Name == genre.Name);
 
                 if (existingGenre == null)
                 {
-                    // Добавляем новый жанр, если его нет в базе данных
-                    _context.Genres.Add(genre);
-                }
-                else
-                {
-                    // Связываем существующий жанр с книгой
                     genre.Id = existingGenre.Id;
                 }
             }
@@ -109,7 +156,7 @@ namespace Server.Controllers
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateBook(int id, Book book)
         {
             if (id != book.Id)
@@ -140,10 +187,10 @@ namespace Server.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book =  _context.Books.FirstOrDefault(e => e.Id == id);
             if (book == null)
             {
                 return NotFound();

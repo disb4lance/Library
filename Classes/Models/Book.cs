@@ -20,7 +20,7 @@ namespace Classes.Models
         [Required]
         public DateTime PublishedDate { get; set; }
 
-        // Связь многие ко многим с жанрами
+
         public ICollection<Genre> Genres { get; set; } = new List<Genre>();
     }
 }

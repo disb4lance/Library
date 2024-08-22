@@ -8,23 +8,25 @@ namespace Client.Services.Requests
 {
     public class ApiResponse
     {
-        public bool IsSuccess { get; }
-        public string Message { get; }
+        public bool IsSuccess { get; private set; }
+        public string Message { get; private set; }
+        public object Data { get; private set; }
 
-        private ApiResponse(bool isSuccess, string message = null)
+        private ApiResponse(bool success, string message, object data = null)
         {
-            IsSuccess = isSuccess;
+            IsSuccess = success;
             Message = message;
+            Data = data;
         }
 
-        public static ApiResponse Success(string message = "Operation completed successfully.")
+        public static ApiResponse Success(object data = null)
         {
-            return new ApiResponse(true, message);
+            return new ApiResponse(true, string.Empty, data);
         }
 
-        public static ApiResponse Failure(string errorMessage)
+        public static ApiResponse Failure(string message)
         {
-            return new ApiResponse(false, errorMessage);
+            return new ApiResponse(false, message);
         }
     }
 }
