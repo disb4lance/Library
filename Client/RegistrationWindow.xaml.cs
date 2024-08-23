@@ -43,7 +43,7 @@ namespace Client
             // Создаем UserService и создаем пользователя
             var userService = new UserService(userFactory);
             User newUser = userService.RegisterUser(username, password, mail);
-            // Отправка данных пользователя на сервер
+
             await RegisterUserAsync(newUser);
         }
 
@@ -57,7 +57,6 @@ namespace Client
             if (response.IsSuccess)
             {
                 MessageBox.Show(response.Message, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                // Очистка полей после успешной регистрации
                 UsernameTextBox.Clear();
                 EmailTextBox.Clear();
                 PasswordBox.Clear();

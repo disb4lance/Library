@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace Classes.LoginModel
 {
-    public class LoanDto
+    public class Loan
     {
-        public int Id { get; set; }
         public string UserId { get; set; }
-        public BookDto Book { get; set; }
+        public int BookId { get; set; }
         public DateTime LoanDate { get; set; }
-        public DateTime? ReturnDate { get; set; }
-        public bool IsReturned { get; set; }
     }
 }

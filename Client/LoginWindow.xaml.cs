@@ -54,8 +54,8 @@ namespace Client
                 MessageBox.Show("Вход успешен!", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
                 string token = response.Data.ToString();
                 //SaveBookToLoan(token);
-                // Пример передачи токена в следующую форму
-                BookForm booksListWindow = new BookForm(token);
+                // передача токена в следующую форму
+                Loan booksListWindow = new Loan(token);
                 booksListWindow.Show();
                 this.Close();
             }
