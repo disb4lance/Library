@@ -41,7 +41,7 @@ namespace Server.Filters
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            // Можно оставить пустым, если не требуется обработка после выполнения действия
+           
         }
 
         private ClaimsPrincipal ValidateToken(string authToken)

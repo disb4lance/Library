@@ -149,7 +149,7 @@ namespace Server.Controllers
             {
             new Claim("id", user.Id.ToString()),
             new Claim("role", user.Role)
-        };
+            };
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],

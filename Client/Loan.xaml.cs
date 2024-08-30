@@ -35,8 +35,6 @@ namespace Client
         {
             // Извлечение UserId из токена
             string userId = GetUserIdFromToken(_token);
-
-            // Если UserId успешно извлечен, отправляем его на сервер
             if (!string.IsNullOrEmpty(userId))
             {
                 SendUserIdToServer(userId);
@@ -62,13 +60,7 @@ namespace Client
         {
             using (HttpClient client = new HttpClient())
             {
-                // Укажите URL вашего API, включив UserId как параметр
-                string url = $"http://localhost:5062/api/Loans/GetLoanByUserId?userId={Uri.EscapeDataString(userId)}";
-
-                // Добавляем токен в заголовок запроса
-                //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
-                // Отправка GET-запроса
+                string url = $"http://localhost:5062/api/Loans/GetLoansByUserId?userId={userId}";
                 HttpResponseMessage response = await client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)

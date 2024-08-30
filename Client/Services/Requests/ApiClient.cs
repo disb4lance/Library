@@ -73,7 +73,7 @@ namespace Client.Services.Requests
                 {
                     var result = await response.Content.ReadAsStringAsync();
 
-                    // Десериализация результата для получения токена (предполагается, что ответ содержит JSON с ключом "token")
+                    // Десериализация результата для получения токена 
                     var jsonObject = JsonSerializer.Deserialize<Dictionary<string, string>>(result);
 
                     if (jsonObject != null && jsonObject.ContainsKey("token"))
@@ -110,7 +110,6 @@ namespace Client.Services.Requests
                 // Добавляем токен в заголовок запроса
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
-                // Отправка POST-запроса
                 HttpResponseMessage response = await _client.PostAsync("Books/AddBook", content);
 
                 if (response.IsSuccessStatusCode)

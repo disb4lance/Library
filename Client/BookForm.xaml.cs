@@ -36,14 +36,13 @@ namespace Client
             try
             {
 
-                // Создаем новый объект Book
                 Book newBook = new Book
                 {
                     Title = TitleTextBox.Text,
                     Author = AuthorTextBox.Text,
                     ISBN = ISBNTextBox.Text,
                     PublishedDate = PublishedDatePicker.SelectedDate ?? DateTime.Now,
-                    Genres = GenresTextBox.Text.Split(new[] { ',' },                                           // получаем все жанры
+                    Genres = GenresTextBox.Text.Split(new[] { ',' },                                         // все жанры введенные через запятую получаем
                     StringSplitOptions.RemoveEmptyEntries).Select(g => new Genre { Name = g.Trim() }).ToList()
                 };
 

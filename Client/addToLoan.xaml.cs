@@ -38,7 +38,6 @@ namespace Client
                 string bookTitle = BookTitleTextBox.Text;
                 string encodedBookTitle = Uri.EscapeDataString(bookTitle);
 
-                // Укажите URL вашего API
                 string url = $"http://localhost:5062/api/Books/GetBookByName?name={encodedBookTitle}";
 
                 HttpResponseMessage response = client.GetAsync(url).Result;
@@ -52,7 +51,6 @@ namespace Client
                 // Извлечение UserId из JWT токена
                 string userId = GetUserIdFromToken(_token);
 
-                // Подготовьте данные для создания записи о займе
                 var loan = new
                 {
                     UserId = userId,
@@ -60,7 +58,6 @@ namespace Client
                     LoanDate = DateTime.Now
                 };
 
-                // Отправьте POST запрос на сервер для создания записи о займе
                 string loanUrl = "http://localhost:5062/api/Loans/AddToLoan";
                 string json = JsonConvert.SerializeObject(loan);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");

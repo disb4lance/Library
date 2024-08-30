@@ -20,11 +20,11 @@ public class ClaimRequirementAttribute : AuthorizeAttribute, IAsyncAuthorization
     {
         var user = context.HttpContext.User;
 
-        // Проверка наличия нужного claim
+        // Проверка наличия нужного клеймаа
         var claim = user.Claims.FirstOrDefault(c => c.Type == _claimType && c.Value == _claimValue);
         if (claim == null)
         {
-            context.HttpContext.Response.StatusCode = 403; // Forbidden
+            context.HttpContext.Response.StatusCode = 403;
             return;
         }
     }
